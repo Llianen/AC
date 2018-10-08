@@ -39,6 +39,7 @@ namespace UI_example
             // 
             // textBox1
             // 
+            this.textBox1.Enabled = false;
             this.textBox1.Location = new System.Drawing.Point(176, 13);
             this.textBox1.Name = "textBox1";
             this.textBox1.ReadOnly = true;
@@ -52,6 +53,7 @@ namespace UI_example
             this.textBox3.Multiline = true;
             this.textBox3.Name = "textBox3";
             this.textBox3.ReadOnly = true;
+            this.textBox3.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBox3.Size = new System.Drawing.Size(521, 551);
             this.textBox3.TabIndex = 2;
             // 
@@ -89,6 +91,7 @@ namespace UI_example
             this.textBox2.Multiline = true;
             this.textBox2.Name = "textBox2";
             this.textBox2.ReadOnly = true;
+            this.textBox2.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBox2.Size = new System.Drawing.Size(256, 551);
             this.textBox2.TabIndex = 6;
             this.textBox2.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.textBox2_MouseDoubleClick);
