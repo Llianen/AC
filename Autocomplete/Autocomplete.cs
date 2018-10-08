@@ -4,78 +4,92 @@ namespace Autocomplete
 {
     public class Autocomplete : IAutocomplete
     {
-        private string[] inicialItems;
+        private char[][] inicialItems;
         private char[] inputBuffer;
-        private string [] filteredItems;
+        private char[][] filteredItems;
 
-        public Autocomplete(string[] items)
+        public Autocomplete(char[][] items)
         {
-            inicialItems = new string[items.Length];
-            filteredItems = new string[items.Length];
-
+            inicialItems = new char[items.Length][];
             items.CopyTo(inicialItems,0);
-            items.CopyTo(filteredItems, 0);
+
+            filteredItems = new char[0][];
             inputBuffer = new char[0];
         }
 
-        public string[] start(out char[] options)
+        public char[][] NewSearch(out char[] options)
         {
             options = new char[0];
 
-            Array.Resize(ref filteredItems, inicialItems.Length);
-            inicialItems.CopyTo(filteredItems, 0);
-
-            foreach(var s in inicialItems)
+            if (inicialItems.Length != filteredItems.Length)
+            {
+                Array.Resize(ref filteredItems, inicialItems.Length);
+                
+                for (int i = 0; i < inicialItems.Length; i++)
+                {
+                    filteredItems[i] = inicialItems[i];
+                }
+            }
+            
+            foreach(var s in filteredItems)
                 addOption(ref options, s, 0);
 
-            return inicialItems;
+            inputBuffer = new char[0];
+
+            return filteredItems;
         }
 
-        private void add(char c)
+        private void addToInput(char c)
         {
             Array.Resize(ref inputBuffer, inputBuffer.Length+1);
 
             inputBuffer[inputBuffer.Length-1] = c;
         }
 
-        private string[] remove(out char[] options)
+        /// <summary>
+        /// For when the user Backspaces '\b'
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        private char[][] BackSpace(out char[] options)
         {
             options = null;
 
-            start(out options);
-
-            if (inputBuffer.Length < 1)
+            // delete 1 character from input
+            if (inputBuffer.Length > 0)
             {
-                return filteredItems;
+                Array.Resize(ref inputBuffer, inputBuffer.Length - 1);
             }
 
-            Array.Resize(ref inputBuffer, inputBuffer.Length-1);
+            var temp = new string(inputBuffer);
 
-            var temp = inputBuffer;
+            NewSearch(out options);
 
-            Array.Resize(ref inputBuffer, 0);
-
-            foreach (char c in temp)
+            //re-filter the remaining input
+            if (temp != null && temp.Length > 0)
             {
-                filter(c, out options);
+                foreach (char c in temp)
+                {
+                    filter(c, out options);
+                }
             }
-
             return filteredItems;
         }
 
         /// <summary>
-        /// Filters all items by the input char, options the next available characters
+        /// Filters remaining items by the next input char 'c', outputs the next available characters as options
         /// </summary>
         /// <param name="c"></param>
         /// <param name="options"></param>
         /// <returns></returns>
-        public virtual string[] filter(char c, out char[] options)
+        public virtual char[][] filter(char c, out char[] options)
         {
             options = new char[0];
 
+            // '\b' == Backspace character (you should know this)
             if (c == '\b')
             {
-                filteredItems = remove(out options);
+                filteredItems = BackSpace(out options);
                 return filteredItems;
             }
             else if (Char.IsControl(c) || c < 32)
@@ -83,27 +97,29 @@ namespace Autocomplete
                 return filteredItems;
             }
 
-            add(c);
+            //Save input Character
+            addToInput(c);
 
             var pos = inputBuffer.Length - 1;
 
             if (pos < 0)
                 return filteredItems;
 
+            //Lets filter the options
             for (int i = 0; i < filteredItems.Length; )
             {
                 var s = filteredItems[i];
-
-                if (s.Length <= pos)
+                
+                if (s.Length <= pos) //options is smaller - remove
                 {
                     RemoveAt(ref filteredItems, i);
                 }
-                else if (s[pos] == c)
+                else if (s[pos] == c) //Character matches!
                 {
                     addOption(ref options, s, pos+1);
                     i++;
                 }
-                else
+                else // character does not match
                 {
                     RemoveAt(ref filteredItems, i);
                 }
@@ -112,7 +128,7 @@ namespace Autocomplete
             return filteredItems;
         }
 
-        private void addOption(ref char[] options, string s, int pos)
+        private void addOption(ref char[] options, char[] s, int pos)
         {
             if (s.Length > pos)
             {
@@ -131,37 +147,12 @@ namespace Autocomplete
 
             Array.Resize(ref array, array.Length - 1);
         }
-        public virtual string[] filterByString(string s, out char[] options)
-        {
-            options = new char[0];
 
-            //inputBuffer = s.ToCharArray();
+        //private static void AddResult(ref char[][] array, char[] elem)
+        //{
+        //    Array.Resize(ref array, array.Length + 1);
 
-            //var pos = inputBuffer.Length - 1;
-
-            //if (pos < 0)
-            //    return filteredItems;
-
-            //for (int i = 0; i < inicialItems.Length;)
-            //{
-            //    var f = inicialItems[i];
-
-            //    if (s.Length <= pos)
-            //    {
-            //        RemoveAt(ref filteredItems, i);
-            //    }
-            //    else if (f[pos] == c)
-            //    {
-            //        addOption(ref options, f, pos + 1);
-            //        i++;
-            //    }
-            //    else
-            //    {
-            //        RemoveAt(ref filteredItems, i);
-            //    }
-            //}
-
-            return filteredItems;
-        }
+        //    array[array.Length - 1] = elem;
+        //}
     }
 }

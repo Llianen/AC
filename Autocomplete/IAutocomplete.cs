@@ -2,8 +2,7 @@
 {
     public interface IAutocomplete
     {
-        string[] start(out char[] options);
-        string[] filter(char c, out char[] options);
-        string[] filterByString(string s, out char[] options);
+        char[][] NewSearch(out char[] options);
+        char[][] filter(char c, out char[] options);
     }
 }
