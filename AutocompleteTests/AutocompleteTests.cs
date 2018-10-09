@@ -23085,9 +23085,8 @@ namespace Autocomplete.Tests
             IAutocomplete ac = new Autocomplete(estacoesMetro.Select(s => s.ToCharArray()).ToArray());
 
             //"~Qu..."
-
-            var results = ac.NewSearch(out char[] options);
-            results = ac.filter('Q', out options);
+            
+            var results = ac.Filter('Q', out char[] options);
 
             Assert.AreEqual(options[0], 'u', "Expected 'u' as an option");
             Assert.AreEqual(true, results.Length == 1 && new string(results[0]) == "Quinta das Conchas", "Expected \"Quinta das Conchas\" as a result");
@@ -23099,23 +23098,22 @@ namespace Autocomplete.Tests
             IAutocomplete ac = new Autocomplete(estacoesMetro.Select(s => s.ToCharArray()).ToArray());
 
             //"~Qu..."
-
-            var results = ac.NewSearch(out char[] options);
-            results = ac.filter('\b', out options);
-            results = ac.filter('Q', out options);
-            results = ac.filter('A', out options);
-            results = ac.filter('\b', out options);
+            
+            var results = ac.Filter('\b', out char[] options);
+            results = ac.Filter('Q', out options);
+            results = ac.Filter('A', out options);
+            results = ac.Filter('\b', out options);
 
             Assert.AreEqual('u', options[0]);
 
-            results = ac.filter('u', out options);
+            results = ac.Filter('u', out options);
 
             Assert.AreEqual('i', options[0]);
             Assert.AreEqual("Quinta das Conchas", new string(results[0]));
 
-            results = ac.filter('\b', out options);
-            results = ac.filter('\b', out options);
-            results = ac.filter('\b', out options);
+            results = ac.Filter('\b', out options);
+            results = ac.Filter('\b', out options);
+            results = ac.Filter('\b', out options);
 
             Assert.AreEqual(50, options.Length);
             Assert.AreEqual(50, results.Length);
@@ -23125,9 +23123,8 @@ namespace Autocomplete.Tests
         public void SearchCorrectness()
         {
             IAutocomplete ac = new Autocomplete(estacoesMetro.Select(s => s.ToCharArray()).ToArray());
-
-            var filtered = ac.NewSearch(out char[] options);
-            filtered = ac.filter('A', out options);
+            
+            var filtered = ac.Filter('A', out char[] options);
 
             Assert.AreEqual(11, options.Length, "Expected 11 char options");
 
@@ -23135,7 +23132,7 @@ namespace Autocomplete.Tests
 
             Assert.AreEqual(true, options.Contains('m'), "Char 'm' expected as an option");
 
-            filtered = ac.filter('m', out options);
+            filtered = ac.Filter('m', out options);
 
             Assert.AreEqual(2, options.Length, "Expected 2 char options");
 
@@ -23143,25 +23140,51 @@ namespace Autocomplete.Tests
         }
 
         [TestMethod()]
-        public void PerformanceTest()
+        public void InitialData()
         {
-            int quantity = 1000;
+            IAutocomplete ac = new Autocomplete(estacoesMetro.Select(s => s.ToCharArray()).ToArray());
+
+            var filtered = ac.Search(null, out char[] options);
+
+            Assert.AreEqual(estacoesMetro.Length, filtered.Length);
+
+            Assert.AreEqual(estacoesMetro.Length, options.Length);
+        }
+
+        [TestMethod()]
+        public void SearchByString()
+        {
+            IAutocomplete ac = new Autocomplete(estacoesMetro.Select(s => s.ToCharArray()).ToArray());
+
+            var filtered = ac.Search(estacoesMetro[0].ToCharArray(), out char[] options);
+
+            Assert.AreEqual(1, filtered.Length);
+
+            Assert.AreEqual(0, options.Length);
+        }
+
+        [TestMethod()]
+        public void PerformanceUISimulate()
+        {
+            //int quantity = 4000;
             char[] options;
             char[][] results;
 
             // Start the test
 
-            IAutocomplete ac = new Autocomplete(cities.Take(quantity).Select(s => s.ToCharArray()).ToArray());
+            IAutocomplete ac = new Autocomplete(cities.Select(s => s.ToCharArray()).ToArray());
 
             Stopwatch sw = Stopwatch.StartNew();
 
-            foreach (string s in cities.Take(quantity))
+            foreach (string s in cities)
             {
-                results = ac.NewSearch(out options);
+                //Get initial full results
+                results = ac.Search(null, out options);
 
+                //filter Char by Char
                 foreach (char c in s)
                 {
-                    results = ac.filter(c, out options);
+                    results = ac.Filter(c, out options);
                 }
             }
 
@@ -23169,7 +23192,33 @@ namespace Autocomplete.Tests
 
             var av = sw.ElapsedMilliseconds / cities.Length;
             // Complexity = n + n log n
-            var acceptedTime = 200 * quantity;
+            var acceptedTime = 10 * cities.Length;
+            Assert.AreEqual(true, sw.ElapsedMilliseconds < acceptedTime, sw.ElapsedTicks.ToString() + " > " + acceptedTime + "; " + av.ToString());
+        }
+
+        [TestMethod()]
+        public void PerformanceSearchByFullString()
+        {
+            //int quantity = 4000;
+            char[] options;
+            char[][] results;
+
+            // Start the test
+
+            IAutocomplete ac = new Autocomplete(cities.Select(s => s.ToCharArray()).ToArray());
+
+            Stopwatch sw = Stopwatch.StartNew();
+
+            foreach (string s in cities)
+            {
+                results = ac.Search(s.ToCharArray(), out options);
+            }
+
+            sw.Stop();
+
+            var av = sw.ElapsedMilliseconds / cities.Length;
+            // Complexity = n + n log n
+            var acceptedTime = 10 * cities.Length;
             Assert.AreEqual(true, sw.ElapsedMilliseconds < acceptedTime, sw.ElapsedTicks.ToString() + " > " + acceptedTime + "; " + av.ToString());
         }
     }

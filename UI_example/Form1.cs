@@ -20,7 +20,7 @@ namespace UI_example
 
             InitializeComponent();
 
-            textBox3.Lines = ac.NewSearch(out options).Select(s => new string(s)).ToArray();
+            textBox3.Lines = ac.Search(null, out options).Select(s => new string(s)).ToArray();
             setOptions(options);
         }
 
@@ -23111,7 +23111,7 @@ namespace UI_example
 
         private void filter(char c)
         {
-            textBox3.Lines = ac.filter(c, out char[] options).Select(s => new string(s)).ToArray();
+            textBox3.Lines = ac.Filter(c, out char[] options).Select(s => new string(s)).ToArray();
 
             if (options == null)
                 textBox2.Text = string.Empty;
