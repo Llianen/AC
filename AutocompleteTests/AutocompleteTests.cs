@@ -23164,9 +23164,8 @@ namespace Autocomplete.Tests
         }
 
         [TestMethod()]
-        public void PerformanceUISimulate()
+        public void PerformanceTest_SearchFor_AllCharacters_InAllWords()
         {
-            //int quantity = 4000;
             char[] options;
             char[][] results;
 
@@ -23190,14 +23189,14 @@ namespace Autocomplete.Tests
 
             sw.Stop();
 
-            var av = sw.ElapsedMilliseconds / cities.Length;
-            // Complexity = n + n log n
-            var acceptedTime = 10 * cities.Length;
-            Assert.AreEqual(true, sw.ElapsedMilliseconds < acceptedTime, sw.ElapsedTicks.ToString() + " > " + acceptedTime + "; " + av.ToString());
+            var av = (double)sw.ElapsedMilliseconds / cities.Length;
+
+            var acceptedTime = 2; //milliseconds
+            Assert.AreEqual(true, av < acceptedTime, av.ToString() + " > " + acceptedTime);
         }
 
         [TestMethod()]
-        public void PerformanceSearchByFullString()
+        public void PerformanceTest_SearchBy_FullString()
         {
             //int quantity = 4000;
             char[] options;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Autocomplete
 {
@@ -6,8 +7,8 @@ namespace Autocomplete
     {
         private char[][] initialItems;
         private char[] initialOptions;
-        private char[] inputBuffer;
-        private char[][] filteredItems;
+        private List<char> inputBuffer;
+        private List<char[]> filteredItems;
 
         public Autocomplete(char[][] items)
         {
@@ -20,15 +21,8 @@ namespace Autocomplete
             foreach (var s in items)
                 initialOptions[i++] = s[0];
 
-            filteredItems = new char[0][];
-            inputBuffer = new char[0];
-        }
-
-        private void addToInput(char c)
-        {
-            Array.Resize(ref inputBuffer, inputBuffer.Length+1);
-
-            inputBuffer[inputBuffer.Length-1] = c;
+            filteredItems = new List<char[]>();
+            inputBuffer = new List<char>();
         }
 
         public virtual char[][] Search(char[] criteria, out char[] options)
@@ -36,13 +30,11 @@ namespace Autocomplete
             options = new char[0];
 
             if (criteria != null && criteria.Length > 0)
-                inputBuffer = criteria;
+                inputBuffer = new List<char>(criteria);
             else
-                inputBuffer = new char[0];
+                inputBuffer.Clear();
 
-            filteredItems = expand(inputBuffer, ref options);
-
-            return filteredItems;
+            return expand(inputBuffer.ToArray(), ref options);
         }
 
         /// <summary>
@@ -55,14 +47,12 @@ namespace Autocomplete
             options = new char[0];
 
             // delete 1 character from input
-            if (inputBuffer.Length > 0)
+            if (inputBuffer.Count > 0)
             {
-                Array.Resize(ref inputBuffer, inputBuffer.Length - 1);
+                inputBuffer.RemoveAt(inputBuffer.Count-1);
             }
 
-            filteredItems = expand(inputBuffer, ref options);
-
-            return filteredItems;
+            return expand(inputBuffer.ToArray(), ref options);
         }
 
         /// <summary>
@@ -78,24 +68,21 @@ namespace Autocomplete
             // '\b' == Backspace character (you should know this)
             if (c == '\b')
             {
-                filteredItems = BackSpace(out options);
-                return filteredItems;
+                return BackSpace(out options);
             }
             else if (Char.IsControl(c) || c < 32)
             {
-                return filteredItems;
+                return filteredItems.ToArray();
             }
 
             //Save input Character
-            addToInput(c);
+            inputBuffer.Add(c);
 
             //Lets filter the options
-            if (inputBuffer.Length == 1)
-                filteredItems = expand(inputBuffer, ref options);
+            if (inputBuffer.Count == 1)
+                return expand(inputBuffer.ToArray(), ref options);
             else
-                options = filter(c, options, inputBuffer.Length - 1);
-
-            return filteredItems;
+                return filter(c, ref options, inputBuffer.Count - 1);
         }
 
         /// <summary>
@@ -106,7 +93,7 @@ namespace Autocomplete
         /// <returns></returns>
         private char[][] expand(char[] searchCriteria, ref char[] options)
         {
-            Array.Resize(ref filteredItems, 0);
+            filteredItems.Clear();
 
             var searchSize = searchCriteria != null ? searchCriteria.Length : 0;
 
@@ -134,12 +121,12 @@ namespace Autocomplete
 
                 if(nMatchedChars >= searchCriteria.Length)
                 {
-                    AddStringToArray(ref filteredItems, item);
+                    filteredItems.Add(item);
                     addOption(ref options, item, searchSize);
                 }
             }
 
-            return filteredItems;
+            return filteredItems.ToArray();
         }
 
         /// <summary>
@@ -149,15 +136,15 @@ namespace Autocomplete
         /// <param name="options"></param>
         /// <param name="pos"></param>
         /// <returns></returns>
-        private char[] filter(char c, char[] options, int pos)
+        private char[][] filter(char c, ref char[] options, int pos)
         {
-            for (int i = 0; i < filteredItems.Length;)
+            for (int i = 0; i < filteredItems.Count;)
             {
                 var s = filteredItems[i];
 
                 if (s.Length <= pos) //options is smaller - remove
                 {
-                    RemoveAt(ref filteredItems, i);
+                    filteredItems.RemoveAt(i);
                 }
                 else if (s[pos] == c) //Character matches!
                 {
@@ -166,11 +153,11 @@ namespace Autocomplete
                 }
                 else // character does not match
                 {
-                    RemoveAt(ref filteredItems, i);
+                    filteredItems.RemoveAt(i);
                 }
             }
 
-            return options;
+            return filteredItems.ToArray();
         }
 
         /// <summary>
