@@ -5,26 +5,24 @@ namespace Autocomplete
 {
     public class Autocomplete : IAutocomplete
     {
-        private char[][] initialItems;
-        private char[] initialOptions;
+        public char[][] AllItems { get; }
+        public char[] InitialOptions { get; }
         private List<char> inputBuffer;
         private List<char[]> filteredItems;
 
         public Autocomplete(char[][] items)
         {
-            initialItems = new char[items.Length][];
-            initialOptions = new char[items.Length];
-
-            items.CopyTo(initialItems,0);
+            AllItems = items;
+            InitialOptions = new char[items.Length];
 
             int i = 0;
             foreach (var s in items)
-                initialOptions[i++] = s[0];
+                InitialOptions[i++] = s[0];
 
             filteredItems = new List<char[]>();
             inputBuffer = new List<char>();
         }
-
+        
         public virtual char[][] Search(char[] criteria, out char[] options)
         {
             options = new char[0];
@@ -42,10 +40,8 @@ namespace Autocomplete
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        private char[][] BackSpace(out char[] options)
+        private char[][] BackSpace(ref char[] options)
         {
-            options = new char[0];
-
             // delete 1 character from input
             if (inputBuffer.Count > 0)
             {
@@ -68,7 +64,7 @@ namespace Autocomplete
             // '\b' == Backspace character (you should know this)
             if (c == '\b')
             {
-                return BackSpace(out options);
+                return BackSpace(ref options);
             }
             else if (Char.IsControl(c) || c < 32)
             {
@@ -99,13 +95,13 @@ namespace Autocomplete
 
             if (searchSize == 0)
             {
-                options = initialOptions;
-                return initialItems;
+                options = InitialOptions;
+                return AllItems;
             }
 
-            for (int i = 0; i < initialItems.Length; i++)
+            for (int i = 0; i < AllItems.Length; i++)
             {
-                var item = initialItems[i];
+                var item = AllItems[i];
 
                 var nMatchedChars = 0;
 

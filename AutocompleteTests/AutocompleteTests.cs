@@ -23144,6 +23144,10 @@ namespace Autocomplete.Tests
         {
             IAutocomplete ac = new Autocomplete(estacoesMetro.Select(s => s.ToCharArray()).ToArray());
 
+            Assert.AreEqual(estacoesMetro.Length, ac.AllItems.Length);
+
+            Assert.AreEqual(estacoesMetro.Length, ac.InitialOptions.Length);
+
             var filtered = ac.Search(null, out char[] options);
 
             Assert.AreEqual(estacoesMetro.Length, filtered.Length);
@@ -23164,7 +23168,7 @@ namespace Autocomplete.Tests
         }
 
         [TestMethod()]
-        public void PerformanceTest_SearchFor_AllCharacters_InAllWords()
+        public void Performance_SearchFor_AllCharacters_InAllWords()
         {
             char[] options;
             char[][] results;
@@ -23191,12 +23195,12 @@ namespace Autocomplete.Tests
 
             var av = (double)sw.ElapsedMilliseconds / cities.Length;
 
-            var acceptedTime = 2; //milliseconds
+            var acceptedTime = (double)1.700; //milliseconds
             Assert.AreEqual(true, av < acceptedTime, av.ToString() + " > " + acceptedTime);
         }
 
         [TestMethod()]
-        public void PerformanceTest_SearchBy_FullString()
+        public void Performance_SearchBy_FullString()
         {
             //int quantity = 4000;
             char[] options;
@@ -23215,10 +23219,10 @@ namespace Autocomplete.Tests
 
             sw.Stop();
 
-            var av = sw.ElapsedMilliseconds / cities.Length;
-            // Complexity = n + n log n
-            var acceptedTime = 10 * cities.Length;
-            Assert.AreEqual(true, sw.ElapsedMilliseconds < acceptedTime, sw.ElapsedTicks.ToString() + " > " + acceptedTime + "; " + av.ToString());
+            var av = (double)sw.ElapsedMilliseconds / cities.Length;
+
+            var acceptedTime = (double) 0.310; //milliseconds
+            Assert.AreEqual(true, av < acceptedTime, av.ToString() + " > " + acceptedTime);
         }
     }
 }

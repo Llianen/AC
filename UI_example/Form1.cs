@@ -20,8 +20,8 @@ namespace UI_example
 
             InitializeComponent();
 
-            textBox3.Lines = ac.Search(null, out options).Select(s => new string(s)).ToArray();
-            setOptions(options);
+            textBox3.Lines = ac.AllItems.Select(s => new string(s)).ToArray();
+            setOptions(ac.InitialOptions);
         }
 
         public static readonly string[] estacoesMetro = {"Aeroporto",
