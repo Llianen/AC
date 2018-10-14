@@ -55,7 +55,7 @@ namespace UI_example
             this.textBox3.ReadOnly = true;
             this.textBox3.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBox3.Size = new System.Drawing.Size(521, 551);
-            this.textBox3.TabIndex = 2;
+            this.textBox3.TabIndex = 3;
             // 
             // label1
             // 
@@ -93,7 +93,7 @@ namespace UI_example
             this.textBox2.ReadOnly = true;
             this.textBox2.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.textBox2.Size = new System.Drawing.Size(256, 551);
-            this.textBox2.TabIndex = 6;
+            this.textBox2.TabIndex = 2;
             this.textBox2.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.textBox2_MouseDoubleClick);
             // 
             // button1
@@ -102,7 +102,7 @@ namespace UI_example
             this.button1.Location = new System.Drawing.Point(670, 13);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(74, 23);
-            this.button1.TabIndex = 7;
+            this.button1.TabIndex = 1;
             this.button1.Text = "лл  Back";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);

@@ -83,6 +83,13 @@
       <Project>{37a43983-1b18-44a0-9e1c-6d856b6b6557}</Project>
       <Name>Autocomplete</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Data\DataProj.csproj">
+      <Project>{bff74608-1a8d-4ec3-b4a2-dacc991c0b8e}</Project>
+      <Name>DataProj</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
